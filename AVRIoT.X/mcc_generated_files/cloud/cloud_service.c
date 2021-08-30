@@ -35,7 +35,7 @@
 #include "../config/conf_winc.h"
 #include "cloud_service.h"
 #include "../debug_print.h"
-#include "../mqtt/mqtt_winc_adapter.h"
+//#include "../mqtt/mqtt_winc_adapter.h"
 #include "../drivers/timeout.h"
 #include "mqtt_service.h"
 #include "../mqtt/mqtt_core/mqtt_core.h"
@@ -79,6 +79,8 @@ shared_networking_params_t shared_networking_params;
 cloudStatus_t cloudStatus;
 packetReceptionHandler_t cloud_packetReceiveCallBackTable[CLOUD_PACKET_RECV_TABLE_SIZE];
 
+
+
 cloudContext_t cloudContext = 
 {
     CLOUD_init,
@@ -90,6 +92,8 @@ cloudContext_t cloudContext =
     CLOUD_isConnected, 
     CLOUD_isDisconnected
 };
+
+
 
 
 void CLOUD_reset(void)
@@ -408,6 +412,10 @@ static uint8_t reInit(void)
     
     cloud_packetReceiveCallBackTable[0].socket = MQTT_GetClientConnectionInfo()->tcpClientSocket;
     cloud_packetReceiveCallBackTable[0].recvCallBack = MQTT_CLIENT_receive;
+    
+    webserver_setSocketInfo(&cloud_packetReceiveCallBackTable);
+    
+     
     
     //When the input comes through cli/.cfg
     if((strcmp(ssid,"") != 0) &&  (strcmp(authType,"") != 0))

@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include "../drivers/timeout.h"
 #include "mqtt_service.h"
+#include "../mqtt/mqtt_winc_adapter.h"
+
 
 #define CLOUD_RESET_TIMEOUT            2000L   // 2 seconds
 
@@ -63,5 +65,8 @@ void CLOUD_publish(uint8_t* refToPublishTopic, uint8_t* data, uint16_t len);
 void CLOUD_disconnect(void);
 bool CLOUD_isConnected(void);
 bool CLOUD_isDisconnected(void);
+
+
+
 
 #endif /* CLOUD_INTERFACE_H */

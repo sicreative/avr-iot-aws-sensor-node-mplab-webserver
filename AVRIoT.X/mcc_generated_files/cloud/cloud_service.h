@@ -12,9 +12,10 @@
 #include <stdint.h>
 #include "../utils/compiler.h"
 #include "../mqtt/mqtt_packetTransfer_interface.h"
+#include "../mqtt/mqtt_winc_adapter.h"
 
 
-#define CLOUD_PACKET_RECV_TABLE_SIZE	2
+#define CLOUD_PACKET_RECV_TABLE_SIZE	3
 
 
 typedef union
@@ -40,4 +41,5 @@ void CLOUD_publishData(uint8_t* refToPublishTopic, uint8_t* data, unsigned int l
 void CLOUD_registerSubscription(uint8_t *topic, imqttHandlePublishDataFuncPtr subscriptionCallback);
 bool CLOUD_checkIsConnected(void);
 void CLOUD_reset(void);
+
 #endif /* CLOUD_SERVICE_H_ */

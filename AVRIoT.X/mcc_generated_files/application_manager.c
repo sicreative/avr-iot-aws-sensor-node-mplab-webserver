@@ -51,6 +51,8 @@ SOFTWARE.
 #include "cli/cli.h"
 #endif
 
+#include "../webserver.h"
+
 
 #define MAIN_DATATASK_INTERVAL 100L
 // The debounce time is currently close to 2 Seconds.
@@ -285,6 +287,7 @@ void application_init(void)
     
     LED_test();
     subscribeToCloud();
+    webserver_init(attDeviceID);
 }
 
 static void subscribeToCloud(void)
@@ -436,7 +439,8 @@ uint32_t MAIN_dataTask(void *payload)
         ledParameterRed.offTime = SOLID_ON;
         LED_control(&ledParameterRed);
     }
-        
+      
+    
     // This is milliseconds managed by the RTC and the scheduler, this return 
     // makes the timer run another time, returning 0 will make it stop
     return MAIN_DATATASK_INTERVAL; 
@@ -449,7 +453,7 @@ void application_post_provisioning(void)
 }
 
 // React to the WIFI state change here. Status of 1 means connected, Status of 0 means disconnected
-static void  wifiConnectionStateChanged(uint8_t status)
+static void wifiConnectionStateChanged(uint8_t status)
 {
     // If we have no AP access we want to retry
     if (status != 1)

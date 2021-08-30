@@ -54,6 +54,7 @@ SOFTWARE.
 #include "winc/common/winc_defines.h"
 #include "config/cloud_config.h"
 
+#include "../../webserver.h"
 
 //Flash location to read thing Name from winc
 #define THING_NAME_FLASH_OFFSET (M2M_TLS_SERVER_FLASH_OFFSET + M2M_TLS_SERVER_FLASH_SIZE - FLASH_PAGE_SZ) 
@@ -136,7 +137,7 @@ void wifi_init(void (*funcPtr)(uint8_t), uint8_t mode)
     timeout_create(&wifiHandlerTimer, CLOUD_WIFI_TASK_INTERVAL);
 }
 
-void wifi_readThingNameFromWinc(void)
+void wifi_readThingNameFromWinc()
 {
     int8_t status;
     status =  m2m_wifi_download_mode();
@@ -343,6 +344,8 @@ static void wifiCallback(uint8_t msgType, const void *pMsg)
 
                 timeout_create(&checkBackTimer,CLOUD_WIFI_TASK_INTERVAL);
 		        shared_networking_params.amDisconnecting = 1;
+                
+                webserver_close();
             }
             
             if ((wifiConnectionStateChangedCallback != NULL) && (shared_networking_params.amDisconnecting == 0))
@@ -365,6 +368,7 @@ static void wifiCallback(uint8_t msgType, const void *pMsg)
                 }
                 shared_networking_params.haveError = 0;
                 debug_printGOOD("CLOUD: DHCP CONF");
+                webserver_start();
             }
             break;
         }
@@ -396,7 +400,15 @@ static void wifiCallback(uint8_t msgType, const void *pMsg)
                 timeout_create(&softApConnectTimer, 0);
             }
             break;
-        }        
+        }
+
+        case M2M_WIFI_RESP_CONN_INFO:
+        {
+           
+            tstrM2MConnInfo *info = (tstrM2MConnInfo*)pMsg;
+            webserver_info_cb(info);
+            break;
+        }                
 
         default:
         {
