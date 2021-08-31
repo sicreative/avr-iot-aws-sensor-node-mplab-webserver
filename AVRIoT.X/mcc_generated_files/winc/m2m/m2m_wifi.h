@@ -770,7 +770,7 @@ int8_t m2m_wifi_default_connect(void);
 /*!
 @ingroup WLANCONNECT
 @fn \
-    int8_t m2m_wifi_connect_open(tenuCredStoreOption enuCredStoreOption, tstrNetworkId *pstrNetworkId);
+    int8_t s_open(tenuCredStoreOption enuCredStoreOption, tstrNetworkId *pstrNetworkId);
 
 @brief
     Asynchronous API to connect to an access point using open authentication.
