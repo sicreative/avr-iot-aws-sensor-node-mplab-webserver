@@ -32,8 +32,10 @@
 #include <string.h>
 #include <stdio.h>
 #include "mqtt_winc_adapter.h"
+#include "../debug_print.h"
+#include "../../webserver.h"
 
-#define MAX_SUPPORTED_SOCKETS		2
+#define MAX_SUPPORTED_SOCKETS		3
 /**********************BSD (WINC) Enumerator Translators ********************************/
 typedef enum
 {
@@ -765,11 +767,73 @@ void BSD_SocketHandler(int8_t sock, uint8_t msgType, void *pMsg)
 {
 	packetReceptionHandler_t *bsdSocketInfo;
 
+   
+    
 	bsdSocketInfo = getSocketInfo(sock);
    if(bsdSocketInfo == NULL) {
-
-      return;
+        packetReceptionHandler_t *bsdSocketInfo = BSD_GetRecvHandlerTable();
+        return;
    }
+    
+    if(bsdSocketInfo->socket==webserver_getServerSocket()){
+        
+        
+         switch (msgType){
+            case SOCKET_MSG_BIND:
+            {
+                 tstrSocketBindMsg *pstrBind = (tstrSocketBindMsg *)pMsg;
+                 if (pstrBind && pstrBind->status == 0)
+                    listen(*webserver_getServerSocket(), 0);
+                 
+                 bsdSocketInfo->socketState = SOCKET_IN_PROGRESS;
+        
+                debug_printIoTAppMsg("bind: %d\r\n",sock);
+                return;
+            }
+            case SOCKET_MSG_LISTEN:
+              {
+                 tstrSocketListenMsg *pstrListen = (tstrSocketListenMsg *)pMsg;
+                    if (pstrListen && pstrListen->status == 0)
+                     accept(*webserver_getServerSocket(), NULL, NULL);
+                 
+                 bsdSocketInfo->socketState = SOCKET_IN_PROGRESS;
+                 
+                 debug_printIoTAppMsg("listen: %d\r\n",sock);
+                  return;
+             }
+            
+            case SOCKET_MSG_ACCEPT:
+            {
+             tstrSocketAcceptMsg *pstrAccept = (tstrSocketAcceptMsg *)pMsg;
+            if (pstrAccept) {
+               SOCKET tcp_client_socket = pstrAccept->sock;
+               if (*webserver_getClientSocket()!=-1 && *webserver_getClientSocket()!=tcp_client_socket){
+                   BSD_close(*webserver_getClientSocket());
+                   webserver_resetClientSocket();
+                   
+               }
+               
+               debug_printIoTAppMsg("accept from: %d\r\n",tcp_client_socket);
+               *webserver_getClientSocket() = tcp_client_socket;
+                recv(tcp_client_socket, webserver_getRecvData(),128, 0);
+                
+                bsdSocketInfo->socketState = SOCKET_CONNECTED;
+                
+               
+               }
+             
+                
+                 return;
+            }
+            
+            
+    
+        }
+    }
+
+  
+    
+    
 	switch (msgType)
 	{
 		case SOCKET_MSG_CONNECT:
@@ -791,22 +855,34 @@ void BSD_SocketHandler(int8_t sock, uint8_t msgType, void *pMsg)
 
 		case SOCKET_MSG_SEND:
 		   bsdSocketInfo->socketState = SOCKET_CONNECTED;
+           if(sock==*webserver_getClientSocket()){
+            tstrSocketAcceptMsg *pstrAccept = (tstrSocketAcceptMsg *)pMsg;
+            
+            webserver_send_next();
+            
+           }
 		break;
 
       case SOCKET_MSG_RECV:
          if(pMsg)
          {
           	tstrSocketRecvMsg *pstrRecv = (tstrSocketRecvMsg *)pMsg;
+
             if (pstrRecv->s16BufferSize > 0)
             {
-	            bsdSocketInfo->recvCallBack(pstrRecv->pu8Buffer, pstrRecv->s16BufferSize);
-	            bsdSocketInfo->socketState = SOCKET_CONNECTED;
-
-            } else {
-
-               BSD_close(sock);
+                if(pstrRecv->u16RemainingSize>0){
+                    recv(sock, pstrRecv->pu8Buffer+pstrRecv->s16BufferSize,pstrRecv->s16BufferSize, 0); 
+                }else{
+                    
+                    bsdSocketInfo->recvCallBack(pstrRecv->pu8Buffer, pstrRecv->s16BufferSize);
+                    bsdSocketInfo->socketState = SOCKET_CONNECTED;
+                }
             }
+
+         } else {
+               BSD_close(sock);
          }
+          
       break;
 
 		case SOCKET_MSG_RECVFROM:
@@ -820,10 +896,14 @@ void BSD_SocketHandler(int8_t sock, uint8_t msgType, void *pMsg)
 				   bsdSocketInfo->socketState = SOCKET_CONNECTED;
 			   }  else {
 			      BSD_close(sock);
-            }
+                }
+               
+              
          }
 		}
 		break;
+        
+  
 
 		default:
 

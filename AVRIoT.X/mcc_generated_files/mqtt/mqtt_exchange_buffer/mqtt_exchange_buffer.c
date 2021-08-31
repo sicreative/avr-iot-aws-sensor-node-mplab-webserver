@@ -54,6 +54,8 @@ uint16_t MQTT_ExchangeBufferWrite(exchangeBuffer *buffer, uint8_t *data, uint16_
 		buffer->dataLength++;
 	}
     
+     
+    
 	return length; 
 }
 
