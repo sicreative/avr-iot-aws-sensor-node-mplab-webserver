@@ -1,13 +1,13 @@
 #ifndef IOT_SENSOR_NODE_CONFIG_H
 #define IOT_SENSOR_NODE_CONFIG_H
 
-#define CFG_SEND_INTERVAL 1
+#define CFG_SEND_INTERVAL (webserver_getUpdateInterval())
 
 #define CFG_TIMEOUT 5000
 
 #define CFG_DEBUG_PRINT (0)
 
-#define CFG_ENABLE_CLI (1)
+#define CFG_ENABLE_CLI (0)
 
 #define ENABLE_DEBUG_IOT_APP_MSGS (1)
 
