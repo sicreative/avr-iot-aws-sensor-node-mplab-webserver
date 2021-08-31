@@ -1,3 +1,8 @@
+# This is orginal readme for microchip AVR-IoT WA out-of-box firmware, for webserver addon readme please reference to readme on folder AVRIoT.X
+(AVRIoT.X/README.md)
+
+---
+
 # Getting Started Guide: Microchip AVR-IoT WA (Wireless for Amazon Web Services) Application
 
 Devices: \| **ATmega4808(MCU)** \| **WINC1510(Wi-Fi®)** \| **ECC608(CryptoAuthLib)** \|

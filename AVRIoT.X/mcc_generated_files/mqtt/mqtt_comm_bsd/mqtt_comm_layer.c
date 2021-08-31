@@ -29,6 +29,7 @@
 #include "mqtt_comm_layer.h"
 #include "../mqtt_core/mqtt_core.h"
 #include "../mqtt_winc_adapter.h"
+#include "../../debug_print.h"
 
 static mqttContext mqttConn;
 static uint8_t mqttTxBuff[CFG_MQTT_TXBUFFER_SIZE];
@@ -89,4 +90,14 @@ void MQTT_GetReceivedData(uint8_t *pData, uint8_t len)
 {
 	MQTT_ExchangeBufferInit(&mqttConn.mqttDataExchangeBuffers.rxbuff);
 	MQTT_ExchangeBufferWrite(&mqttConn.mqttDataExchangeBuffers.rxbuff, pData, len);
+    
+    char c[len];
+    char* s = c;
+    
+    for(int i=0;i<len;++i){
+        sprintf(s,"%02x",mqttConn.mqttDataExchangeBuffers.rxbuff.start[i]);
+        s+=2;
+    }
+    
+    
 }
