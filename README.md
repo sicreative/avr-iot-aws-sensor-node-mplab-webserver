@@ -1,5 +1,5 @@
 
-## This is orginal readme document from microchip AVR-IoT WA out-of-box firmware 
+## This is original readme document from microchip AVR-IoT WA out-of-box firmware 
 
 #### For information of the webserver addon please reference to the folder 
 [AVRIoT.X](AVRIoT.X/)
